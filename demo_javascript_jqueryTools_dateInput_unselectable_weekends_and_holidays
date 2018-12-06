@@ -92,6 +92,7 @@
                     // a 'no-work' holiday
                     weeks[x].childNodes[y].className += classesToAdd + ' goldborder';
                   }
+                  // add a 'title' to the <a> tag to let the end-user know what holiday they are hovering over
                   weeks[x].childNodes[y].title = holidaysText[holidays.indexOf(dyCode)];
                 }
               }
