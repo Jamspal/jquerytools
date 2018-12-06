@@ -1,0 +1,93 @@
+
+			<script type='text/javascript'>
+			  var theYear = new Date(Date.now()).getFullYear();
+			  var theMonth = new Date(Date.now()).getMonth() + 1;
+			  
+			  var holidays = [
+				'1-1-'+ (1 < theMonth ? (theYear+1) : theYear).toString(), 
+				'2-14-'+ (1 < theMonth ? (theYear+1) : theYear).toString(),
+				'3-17-'+ (1 < theMonth ? (theYear+1) : theYear).toString(),
+				'5-5-'+ (1 < theMonth ? (theYear+1) : theYear).toString(),
+				'7-4-'+ (1 < theMonth ? (theYear+1) : theYear).toString(),
+				'10-31-'+ (1 < theMonth ? (theYear+1) : theYear).toString(),
+				'11-11-'+ (1 < theMonth ? (theYear+1) : theYear).toString(),
+				'12-25-'+ (1 < theMonth ? (theYear+1) : theYear).toString()
+			  ];
+			  var holidaysText = ['New Years Day', 'Valentines Day', 'St. Patricks Day', 'Cinco de Mayo', 'Independence Day', 'Halloween', 'Veterans Day', 'Christmas'];
+			  var holidaysWork = [false, true, true, true, false, true, true, false];
+			  
+			  var floatingHolidaysDay  = ['1,1,3', '2,1,3', '5,1,last', '9,1,1', '10,1,2', '11,4,4', '11,5,4'];//'truemonthnum, daynum, occurence'
+			  var floatingHolidaysText = ['Martin Luther King Day', 'Presidents Day', 'Memorial Day', 'Labor Day', 'Columbus Day', 'Thanksgiving Day', 'Black Friday'];
+			  var floatingHolidaysWork = [true, true, true, false, true, false, true];
+			  
+			  floatingHolidaysDay.forEach(function(dyCode, index){
+				i = dyCode.split(','); 
+				mn = parseInt(i[0]) - 1;
+				dy = parseInt(i[1]);
+				dyCnt = parseInt(i[2]);
+				useYear = mn < theMonth ? (theYear+1) : theYear;
+				testDate = new Date(useYear, mn, 1);
+				dayCount = 0;
+				if(parseInt(dyCnt)){
+					while(dayCount < dyCnt){
+						if(testDate.getDay() == dy)dayCount++;
+						if(dayCount == dyCnt)break;
+						testDate = new Date(testDate.getFullYear(), testDate.getMonth(), (testDate.getDate() + 1));
+					}
+				}
+				else{
+					m = testDate.getMonth();
+					d = null;
+					while(m == mn){
+						if(testDate.getDay() == dy){
+							dayCount++;
+							d = testDate;
+						}
+						testDate = new Date(testDate.getFullYear(), testDate.getMonth(), (testDate.getDate() + 1));
+						m = testDate.getMonth();
+					}
+					testDate = d;
+				}
+				holidays.push(testDate.toLocaleDateString().replace(/[/]/g, '-'));
+				holidaysText.push(floatingHolidaysText[index]);
+				holidaysWork.push(floatingHolidaysWork[index]);
+			  });
+			  
+			  jQuery(function(){
+				jQuery('.controls_dateInput').dateinput({
+					format: 'yyyy-mm-dd', 
+					min: '{$deliveryStartDate}', 
+					max: '{$deliveryEndDate}', 
+					selectors:true,
+				
+					'onShow': function(event) {
+						var calendar = this.getCalendar();
+						var conf = this.getConf();
+						var classesToAdd = conf.css.off + ' ' + conf.css.disabled;
+						function disableWeekends() {
+							var weeks = calendar.find('.calweek');
+							weeks.find('a:first, a:last').addClass(classesToAdd);
+							
+							var monthNum = parseInt(jQuery('#calmonth').val());
+							useYear = monthNum < theMonth ? (theYear+1) : theYear;
+							for(x=0;x<weeks.length;x++){
+								for(y=0;y<weeks[x].childElementCount;y++){
+									dyNum = parseInt(weeks[x].childNodes[y].innerHTML);
+									if(dyNum == 1)monthNum++;
+									if(monthNum == 13)monthNum = 1;
+									dyCode = monthNum.toString() +'-'+ dyNum.toString() +'-'+ useYear.toString();
+									if(holidays.indexOf(dyCode) > -1){
+										if(!holidaysWork[holidays.indexOf(dyCode)])
+											weeks[x].childNodes[y].className += classesToAdd;
+										weeks[x].childNodes[y].title = holidaysText[holidays.indexOf(dyCode)];
+									}
+								}
+							}
+						}
+						calendar.find('#calprev, #calnext').click(disableWeekends);
+						disableWeekends();
+					}
+				});
+			  });
+			  jQuery('a[title]').tooltip({delay:0});// why does this not work on the calendar
+			</script>
