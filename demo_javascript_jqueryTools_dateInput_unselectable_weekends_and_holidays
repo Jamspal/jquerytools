@@ -42,10 +42,8 @@
       m = testDate.getMonth();
       d = null;
       while(m == mn){
-        if(testDate.getDay() == dy){
-          dayCount++;
+        if(testDate.getDay() == dy)
           d = testDate;
-        }
         testDate = new Date(testDate.getFullYear(), testDate.getMonth(), (testDate.getDate() + 1));
         m = testDate.getMonth();
       }
